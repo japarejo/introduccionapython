@@ -62,24 +62,16 @@ def main():
     bext.bg('black')
     bext.clear()
 
-    # Generate the global variables:
-    FISHES = []
-    for i in range(NUM_FISH):
-        FISHES.append(generateFish())
-
-    # NOTE: Bubbles are drawn, but not the bubblers themselves.
-    BUBBLERS = []
-    for i in range(NUM_BUBBLERS):
-        # Each bubbler starts at a random position.
-        BUBBLERS.append(random.randint(LEFT_EDGE, RIGHT_EDGE))
+    FISHES = [generateFish() for _ in range(NUM_FISH)]
+    BUBBLERS = [random.randint(LEFT_EDGE, RIGHT_EDGE) for _ in range(NUM_BUBBLERS)]
     BUBBLES = []
 
     KELPS = []
-    for i in range(NUM_KELP):
+    for _ in range(NUM_KELP):
         kelpx = random.randint(LEFT_EDGE, RIGHT_EDGE)
         kelp = {'x': kelpx, 'segments': []}
         # Generate each segment of the kelp:
-        for i in range(random.randint(6, HEIGHT - 1)):
+        for _ in range(random.randint(6, HEIGHT - 1)):
             kelp['segments'].append(random.choice(['(', ')']))
         KELPS.append(kelp)
 
@@ -107,10 +99,8 @@ def generateFish():
     colorPattern = random.choice(('random', 'head-tail', 'single'))
     fishLength = len(fishType['right'][0])
     if colorPattern == 'random':  # All parts are randomly colored.
-        colors = []
-        for i in range(fishLength):
-            colors.append(getRandomColor())
-    if colorPattern == 'single' or colorPattern == 'head-tail':
+        colors = [getRandomColor() for _ in range(fishLength)]
+    if colorPattern in ['single', 'head-tail']:
         colors = [getRandomColor()] * fishLength  # All the same color.
     if colorPattern == 'head-tail':  # Head/tail different from body.
         headTailColor = getRandomColor()
@@ -143,17 +133,16 @@ def simulateAquarium():
         # Move the fish horizontally:
         if STEP % fish['hSpeed'] == 0:
             if fish['goingRight']:
-                if fish['x'] != RIGHT_EDGE:
-                    fish['x'] += 1  # Move the fish right.
-                else:
+                if fish['x'] == RIGHT_EDGE:
                     fish['goingRight'] = False  # Turn the fish around.
                     fish['colors'].reverse()  # Turn the colors around.
-            else:
-                if fish['x'] != LEFT_EDGE:
-                    fish['x'] -= 1  # Move the fish left.
                 else:
-                    fish['goingRight'] = True  # Turn the fish around.
-                    fish['colors'].reverse()  # Turn the colors around.
+                    fish['x'] += 1  # Move the fish right.
+            elif fish['x'] != LEFT_EDGE:
+                fish['x'] -= 1  # Move the fish left.
+            else:
+                fish['goingRight'] = True  # Turn the fish around.
+                fish['colors'].reverse()  # Turn the colors around.
 
         # Fish can randomly change their horizontal direction:
         fish['timeToHDirChange'] -= 1
@@ -165,15 +154,14 @@ def simulateAquarium():
         # Move the fish vertically:
         if STEP % fish['vSpeed'] == 0:
             if fish['goingDown']:
-                if fish['y'] != BOTTOM_EDGE:
-                    fish['y'] += 1  # Move the fish down.
-                else:
+                if fish['y'] == BOTTOM_EDGE:
                     fish['goingDown'] = False  # Turn the fish around.
-            else:
-                if fish['y'] != TOP_EDGE:
-                    fish['y'] -= 1  # Move the fish up.
                 else:
-                    fish['goingDown'] = True  # Turn the fish around.
+                    fish['y'] += 1  # Move the fish down.
+            elif fish['y'] != TOP_EDGE:
+                fish['y'] -= 1  # Move the fish up.
+            else:
+                fish['goingDown'] = True  # Turn the fish around.
 
         # Fish can randomly change their vertical direction:
         fish['timeToVDirChange'] -= 1
@@ -207,11 +195,11 @@ def simulateAquarium():
     # Simulate the kelp waving for one step:
     for kelp in KELPS:
         for i, kelpSegment in enumerate(kelp['segments']):
-            # 1 in 20 chance to change waving:
-            if random.randint(1, 20) == 1:
-                if kelpSegment == '(':
+            if kelpSegment == '(':
+                if random.randint(1, 20) == 1:
                     kelp['segments'][i] = ')'
-                elif kelpSegment == ')':
+            elif kelpSegment == ')':
+                if random.randint(1, 20) == 1:
                     kelp['segments'][i] = '('
 
 
