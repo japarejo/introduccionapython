@@ -67,14 +67,14 @@ def main():
                 # Player is doubling down, they can increase their bet:
                 additionalBet = getBet(min(bet, (money - bet)))
                 bet += additionalBet
-                print('Bet increased to {}.'.format(bet))
+                print(f'Bet increased to {bet}.')
                 print('Bet:', bet)
 
             if move in ('H', 'D'):
                 # Hit/doubling down takes another card.
                 newCard = deck.pop()
                 rank, suit = newCard
-                print('You drew a {} of {}.'.format(rank, suit))
+                print(f'You drew a {rank} of {suit}.')
                 playerHand.append(newCard)
 
                 if getHandValue(playerHand) > 21:
@@ -105,13 +105,13 @@ def main():
         dealerValue = getHandValue(dealerHand)
         # Handle whether the player won, lost, or tied:
         if dealerValue > 21:
-            print('Dealer busts! You win ${}!'.format(bet))
+            print(f'Dealer busts! You win ${bet}!')
             money += bet
         elif (playerValue > 21) or (playerValue < dealerValue):
             print('You lost!')
             money -= bet
         elif playerValue > dealerValue:
-            print('You won ${}!'.format(bet))
+            print(f'You won ${bet}!')
             money += bet
         elif playerValue == dealerValue:
             print('It\'s a tie, the bet is returned to you.')
@@ -123,7 +123,7 @@ def main():
 def getBet(maxBet):
     """Ask the player how much they want to bet for this round."""
     while True:  # Keep asking until they enter a valid amount.
-        print('How much do you bet? (1-{}, or QUIT)'.format(maxBet))
+        print(f'How much do you bet? (1-{maxBet}, or QUIT)')
         bet = input('> ').upper().strip()
         if bet == 'QUIT':
             print('Thanks for playing!')
@@ -141,10 +141,8 @@ def getDeck():
     """Return a list of (rank, suit) tuples for all 52 cards."""
     deck = []
     for suit in (HEARTS, DIAMONDS, SPADES, CLUBS):
-        for rank in range(2, 11):
-            deck.append((str(rank), suit))  # Add the numbered cards.
-        for rank in ('J', 'Q', 'K', 'A'):
-            deck.append((rank, suit))  # Add the face and ace cards.
+        deck.extend((str(rank), suit) for rank in range(2, 11))
+        deck.extend((rank, suit) for rank in ('J', 'Q', 'K', 'A'))
     random.shuffle(deck)
     return deck
 
@@ -184,9 +182,9 @@ def getHandValue(cards):
 
     # Add the value for the aces:
     value += numberOfAces  # Add 1 per ace.
-    for i in range(numberOfAces):
+    for _ in range(numberOfAces):
         # If another 10 can be added without busting, do so:
-        if value + 10 <= 21:
+        if value <= 11:
             value += 10
 
     return value
@@ -196,7 +194,7 @@ def displayCards(cards):
     """Display all the cards in the cards list."""
     rows = ['', '', '', '', '']  # The text to display on each row.
 
-    for i, card in enumerate(cards):
+    for card in cards:
         rows[0] += ' ___  '  # Print the top line of the card.
         if card == BACKSIDE:
             # Print a card's back:
@@ -206,9 +204,9 @@ def displayCards(cards):
         else:
             # Print the card's front:
             rank, suit = card  # The card is a tuple data structure.
-            rows[1] += '|{} | '.format(rank.ljust(2))
-            rows[2] += '| {} | '.format(suit)
-            rows[3] += '|_{}| '.format(rank.rjust(2, '_'))
+            rows[1] += f'|{rank.ljust(2)} | '
+            rows[2] += f'| {suit} | '
+            rows[3] += f"|_{rank.rjust(2, '_')}| "
 
     # Print each row on the screen:
     for row in rows:
